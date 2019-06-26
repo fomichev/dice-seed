@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/tyler-smith/go-bip39"
 )
@@ -87,6 +88,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Dice:", s)
 	fmt.Println("Entropy:", hex.EncodeToString(entropy))
-	fmt.Println("Mnemonic:", mnemonic)
+	fmt.Println("Mnemonic:")
+
+	for i, w := range strings.Split(mnemonic, " ") {
+		fmt.Printf("%2d. %s\n", i+1, w)
+	}
 }
