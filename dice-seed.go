@@ -16,40 +16,39 @@ import (
 // https://en.bitcoin.it/wiki/Seed_phrase
 
 // Number of sides on the dice.
-var M = 6
+var BASE = 6
 var M_REGEXP = "[^1-6]+"
 
 // Bits of entropy we want.
 var ENT = 256
 
-var ENTROPY_PER_ROLL = math.Log2(float64(M))
-var ROLLS = int(math.Ceil(float64(ENT) / ENTROPY_PER_ROLL))
+var ENTROPY_PER_ROLL = math.Log2(float64(BASE))
 
-func rollsToSeed(s string, inc int) (*big.Int, error) {
-	x := big.NewInt(0)
-	m := big.NewInt(int64(M))
+var ROLLS = int(math.Floor(float64(ENT) / ENTROPY_PER_ROLL))
+
+func rollsToSeed(s string, map6to0 bool) (*big.Int, error) {
+	seed := big.NewInt(0)
+	base := big.NewInt(int64(BASE))
 	for _, c := range s {
 		i, err := strconv.Atoi(string(c))
 		if err != nil {
 			return nil, err
 		}
 
-		i -= inc
+		if map6to0 && i == 6 {
+			i = 0
+		}
 
-		if i < 0 || i >= M {
+		if i < 0 || i >= BASE {
 			return nil, fmt.Errorf("invalid input %c", c)
 		}
 
-		x.Mul(x, m)
-		x.Add(x, big.NewInt(int64(i)))
+		// seed = seed * base + i
+		seed.Mul(seed, base)
+		seed.Add(seed, big.NewInt(int64(i)))
 	}
 
-	// throw away bits higher than ENT
-	max := big.NewInt(0).Exp(big.NewInt(2), big.NewInt(int64(ENT)), nil)
-	max.Sub(max, big.NewInt(1))
-	x.And(x, max)
-
-	return x, nil
+	return seed, nil
 }
 
 func main() {
@@ -73,13 +72,16 @@ func main() {
 		s += input
 	}
 
-	seed, err := rollsToSeed(s, 1)
+	seed, err := rollsToSeed(s, true)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	entropy := make([]byte, ENT/8)
 	for i, b := range seed.Bytes() {
+		if i >= ENT/8 {
+			break
+		}
 		entropy[i] = b
 	}
 

@@ -29,11 +29,11 @@ func TestConv(t *testing.T) {
 			expected16 = expected16[len(expected16)-maxLen:]
 		}
 
-		n, _ := rollsToSeed(base6, 0)
+		n, _ := rollsToSeed(base6, false)
 		got16 := n.Text(16)
 
 		if got16 != expected16 {
-			t.Errorf("rollsToSeed(%s, 0):\ngot\t\t0x%s,\nexpected\t0x%s", base6, got16, expected16)
+			t.Errorf("rollsToSeed(%s, false):\ngot\t\t0x%s,\nexpected\t0x%s", base6, got16, expected16)
 		}
 	}
 }
@@ -45,9 +45,9 @@ func TestError(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		_, err := rollsToSeed(test, 0)
+		_, err := rollsToSeed(test, false)
 		if err == nil {
-			t.Errorf("rollsToSeed(%s, 0): expected error", test)
+			t.Errorf("rollsToSeed(%s, false): expected error", test)
 		}
 	}
 }

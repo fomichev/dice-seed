@@ -1,0 +1,36 @@
+#!/bin/bash
+
+compare() {
+	local rolls="$1"
+
+	local base6=$(echo "$rolls" | tr '6' '0')
+	local want=$(echo "obase=16;ibase=6;$base6" | bc | tr 'A-F' 'a-f')
+
+	local got=$(echo "$rolls" | go run dice-seed.go | grep "Entropy" | awk '{ print $2 }')
+
+	if ! echo "$got" | grep -q "$what"; then
+		# Look for a substring only, trailing bytes might
+		# be zero.
+
+		echo "failed $rolls"
+		echo "base6: $base6"
+		echo "got:   $got"
+		echo "want:  $want"
+
+		echo "$rolls" | go run dice-seed.go
+		return
+	fi
+	echo "passed $rolls"
+}
+
+x1234="111122223333444455556666"
+x1111="111111111111111111111111"
+x6666="666666666666666666666666"
+
+compare 111$x1234$x1234$x1234$x1234
+compare 111$x1111$x1111$x1111$x1111
+compare 111$x6666$x6666$x6666$x6666
+
+compare 666$x1234$x1234$x1234$x1234
+compare 666$x1111$x1111$x1111$x1111
+compare 666$x6666$x6666$x6666$x6666
