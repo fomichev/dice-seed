@@ -24,7 +24,7 @@ var ENT = 256
 
 var ENTROPY_PER_ROLL = math.Log2(float64(BASE))
 
-var ROLLS = int(math.Floor(float64(ENT) / ENTROPY_PER_ROLL))
+var ROLLS = int(math.Floor(float64(ENT)/ENTROPY_PER_ROLL) + 1)
 
 func rollsToSeed(s string, map6to0 bool) (*big.Int, error) {
 	seed := big.NewInt(0)
